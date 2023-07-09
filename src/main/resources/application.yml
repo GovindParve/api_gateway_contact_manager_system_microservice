@@ -1,0 +1,66 @@
+server:
+  port: 8999
+  
+  
+eureka:
+  instance:
+    hostname: localhost
+  
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/user/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: user-service
+                fallbackuri: forward:/userServiceFallback
+        - id: contact-service
+          uri: lb://contact-service
+          predicates:
+            - Path=/contact/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: contact-service
+                fallbackuri: forward:/contactServiceFallback
+    
+#hystrix:
+#  shareSecurityContext: true 
+#hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds=100000
+#
+#ribbon.ReadTimeout=100000
+#
+#ribbon.ConnectTimeout=100000
+#Hystrix Configuration  
+hystrix:
+  command:
+    fallbackcmd:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
+    
+
+#Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream
+#          - hystrix.stream
+
+
+
+
+    
+
+    
+    
+    
